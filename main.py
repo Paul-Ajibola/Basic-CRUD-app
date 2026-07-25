@@ -71,3 +71,47 @@ def new_order(payload: RequestBody):
     return new_task
 
 
+@app.put("/tasks/{id}")
+def update_task(title: str, id: int):
+
+    for task in tasks:
+        if task["id"] == id:
+
+            if not title.strip():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Title cannot be empty"
+                )
+
+            task["title"] = title
+            task["done"] = True
+
+            return task
+
+    raise HTTPException(
+        status_code=404,
+        detail="Task not found!"
+    )
+
+
+@app.delete("/tasks/{id}")
+def delete_task(id: int):
+
+    for task in tasks:
+        if task["id"] == id:
+
+            tasks.remove(task)
+
+            return f"Task successfully removed!"
+
+    raise HTTPException(
+        status_code=404,
+        detail="Unknown Task"
+    )
+
+
+           
+        
+
+        
+

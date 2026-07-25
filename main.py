@@ -1,8 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 
 app = FastAPI(title="CRUD App", version="1.0", description="A simple CRUD Task API")
 
+
+class RequestBody(BaseModel):
+    title: str= Field(..., min_length=1)
 
 
 tasks = [
@@ -17,9 +20,11 @@ def home():
     return f"Hello There! Welcome to My Task Homepage"
 
 
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
 
 
 @app.get("/")
@@ -27,9 +32,11 @@ def describe_api():
     return {"name": "Task API", "version": "1.0", "endpoints": ["/tasks"]}
 
 
+
 @app.get("/tasks")
 def check_task():
     return tasks
+
 
 
 @app.get("/tasks/{id}")
@@ -40,5 +47,27 @@ def check_task_state(id: int):
         else:
             raise HTTPException(status_code=404, detail={"error": "Task 99 not found"}) 
 
-              
+
+             
+@app.post("/tasks", status_code=status.HTTP_201_CREATED)
+def new_order(payload: RequestBody):
+
+    if not payload.title.strip():
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Title cannot be empty"}
+        )
+    
+    new_id = max(task["id"] for task in tasks) + 1
+
+    new_task = {
+        "id": new_id,
+        "title": payload.title,
+        "done": False
+    }
+
+    tasks.append(new_task)
+
+    return new_task
+
 

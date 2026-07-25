@@ -1,6 +1,6 @@
 # Task API
 
-A simple CRUD (Create, Read, Update, Delete) REST API for managing tasks, built with **FastAPI**.
+A simple CRUD (Create, Read, Update, Delete) REST API for managing tasks, built with **FastAPI**. This was a demo designed as part of a task for an internship
 
 ## Features
 

@@ -49,7 +49,7 @@ def check_task_state(id: int):
         if task["id"] == id:
             return task
     # else statement outside the loop
-        raise HTTPException(status_code=404, detail={"error": "Task 99 not found"}) 
+    raise HTTPException(status_code=404, detail={"error": "Task 99 not found"}) 
 
 
 
@@ -62,11 +62,11 @@ def new_order(payload: RequestBody):
             detail={"error": "Title cannot be empty"}
         )
     
-    new_id = max(task["id"] for task in tasks) + 1
+    new_id = max((task["id"] for task in tasks, default=0)) + 1
 
     new_task = {
         "id": new_id,
-        "title": payload.title,
+        "title": payload.title.strip(),
         "done": False
     }
 
@@ -91,7 +91,7 @@ def update_task(id: int, payload: UpdateTaskRequest):
 
             # Update completion status if provided
             if payload.done is not None:
-                test["done"] = payload.done
+                task["done"] = payload.done
             return task
 
     raise HTTPException(

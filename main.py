@@ -15,6 +15,7 @@ tasks = [
 ]
 
 
+
 @app.get("/tester")
 def home():
     return f"Hello There! Welcome to My Task Homepage"
@@ -44,8 +45,11 @@ def check_task_state(id: int):
     for task in tasks:
         if task["id"] == id:
             return task
-        else:
-            raise HTTPException(status_code=404, detail={"error": "Task 99 not found"}) 
+        
+    raise HTTPException(
+        status_code=404, 
+        detail={"error": f"Task {id} not found"}
+        ) 
 
 
              
@@ -71,6 +75,7 @@ def new_order(payload: RequestBody):
     return new_task
 
 
+
 @app.put("/tasks/{id}")
 def update_task(title: str, id: int):
 
@@ -92,6 +97,7 @@ def update_task(title: str, id: int):
         status_code=404,
         detail="Task not found!"
     )
+
 
 
 @app.delete("/tasks/{id}")

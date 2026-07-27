@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
+from typing import Optional
 
 app = FastAPI(title="CRUD App", version="1.0", description="A simple CRUD Task API")
 
@@ -7,6 +8,9 @@ app = FastAPI(title="CRUD App", version="1.0", description="A simple CRUD Task A
 class RequestBody(BaseModel):
     title: str= Field(..., min_length=1)
 
+class UpdateTaskRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=1)
+    done: Optional[bool] = None
 
 tasks = [
     {"id": 1, "title": "throw out the trash", "done": False},
@@ -44,11 +48,11 @@ def check_task_state(id: int):
     for task in tasks:
         if task["id"] == id:
             return task
-        else:
-            raise HTTPException(status_code=404, detail={"error": "Task 99 not found"}) 
+    # else statement outside the loop
+        raise HTTPException(status_code=404, detail={"error": "Task 99 not found"}) 
 
 
-             
+
 @app.post("/tasks", status_code=status.HTTP_201_CREATED)
 def new_order(payload: RequestBody):
 
@@ -71,27 +75,30 @@ def new_order(payload: RequestBody):
     return new_task
 
 
-@app.put("/tasks/{id}")
-def update_task(title: str, id: int):
 
+@app.put("/tasks/{id}")
+def update_task(id: int, payload: UpdateTaskRequest):
     for task in tasks:
         if task["id"] == id:
+            # check if a title was provided and isn't just empty
+            if payload.title is not None:
+                if not payload.title.strip():
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Title cannot be empty whitespace"
+                    )
+                task["title"] = payload.title
 
-            if not title.strip():
-                raise HTTPException(
-                    status_code=400,
-                    detail="Title cannot be empty"
-                )
-
-            task["title"] = title
-            task["done"] = True
-
+            # Update completion status if provided
+            if payload.done is not None:
+                test["done"] = payload.done
             return task
 
     raise HTTPException(
-        status_code=404,
+        status_code=status.HTTP_404_NOT_FOUND,
         detail="Task not found!"
     )
+
 
 
 @app.delete("/tasks/{id}")
